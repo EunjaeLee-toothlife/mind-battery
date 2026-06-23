@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MIND-BATTERY | 전문 풀배터리 심리검사 시스템</title>
+  <!-- Google Fonts: Inter & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- 배경 장식 요소 -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="bg-glow bg-glow-3"></div>
+
+  <div class="app-container">
+    <!-- 헤더 -->
+    <header class="main-header">
+      <div class="logo" id="header-logo">
+        <i data-lucide="brain-circuit" class="logo-icon"></i>
+        <span class="logo-text">MIND-BATTERY</span>
+      </div>
+      <div class="header-actions">
+        <span class="status-badge offline-badge" id="storage-status">
+          <i data-lucide="database"></i> 로컬 보안 모드
+        </span>
+      </div>
+    </header>
+
+    <main class="main-content">
+      
+      <!-- 1. 대시보드 화면 -->
+      <section id="dashboard-view" class="view-section active">
+        <div class="welcome-banner">
+          <h1>전문 종합 심리평가 시스템</h1>
+          <p>임상 표준 가이드라인에 따라 마음의 상태를 진단하고 AI 분석에 최적화된 난독화 결과지를 생성합니다.</p>
+        </div>
+
+        <div class="mode-selection-grid">
+          <!-- 간이 검사 카드 -->
+          <div class="mode-card card-quick" id="btn-start-quick">
+            <div class="card-badge">Screening</div>
+            <div class="card-icon-wrapper">
+              <i data-lucide="zap"></i>
+            </div>
+            <h2>30분 간이 스크리닝 검사</h2>
+            <p>정서 상태(우울, 불안, 스트레스)와 핵심 기질, 문장완성 및 3종 HTP 그림검사를 통해 핵심 심리 위험도를 빠르게 평가합니다.</p>
+            <ul class="card-specs">
+              <li><i data-lucide="clock"></i> 예상 소요 시간: 약 30분</li>
+              <li><i data-lucide="file-text"></i> 간이 인지/정서 척도 + SCT 16문항</li>
+              <li><i data-lucide="palette"></i> HTP 그림 검사 (3개 그림)</li>
+            </ul>
+            <button class="btn btn-primary btn-block">검사 시작하기</button>
+          </div>
+
+          <!-- 정밀 검사 카드 -->
+          <div class="mode-card card-full" id="btn-start-full">
+            <div class="card-badge premium">Full Battery</div>
+            <div class="card-icon-wrapper">
+              <i data-lucide="shield-check"></i>
+            </div>
+            <h2>2시간 정밀 풀배터리 검사</h2>
+            <p>임상 초기면접지, 상세 인지기능 검사(WAIS), 정밀 다면적 인성검사(MMPI) 및 TCI 기질검사, SCT 45문항, HTP/KFD 그림 투사 검사를 아우르는 심층 평가입니다.</p>
+            <ul class="card-specs">
+              <li><i data-lucide="clock"></i> 예상 소요 시간: 약 120분</li>
+              <li><i data-lucide="brain"></i> WAIS 인지검사 + MMPI/TCI 190문항</li>
+              <li><i data-lucide="activity"></i> SCT 45문항 + KFD 동적가족화 추가</li>
+            </ul>
+            <button class="btn btn-secondary btn-block">정밀 검사 시작하기</button>
+          </div>
+        </div>
+
+        <!-- 과거 검사 이력 -->
+        <div class="history-section card-glass">
+          <div class="section-title">
+            <i data-lucide="history"></i>
+            <h2>이전 검사 이력 목록</h2>
+          </div>
+          <div class="table-wrapper">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>검사 일시</th>
+                  <th>검사 유형</th>
+                  <th>피검사자</th>
+                  <th>상태</th>
+                  <th>관리</th>
+                </tr>
+              </thead>
+              <tbody id="history-list">
+                <!-- 이력 데이터가 자바스크립트로 주입됨 -->
+                <tr class="empty-row">
+                  <td colspan="5">저장된 검사 이력이 없습니다. 새로운 검사를 시작해 보세요.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. 검사 인트로 및 동의서 화면 -->
+      <section id="intro-view" class="view-section">
+        <div class="card-glass intro-container">
+          <div class="intro-header">
+            <div class="badge" id="intro-mode-badge">간이 검사</div>
+            <h1 id="intro-title">심리검사 시작 안내 및 동의</h1>
+          </div>
+          <div class="intro-body">
+            <div class="warning-box">
+              <i data-lucide="alert-triangle"></i>
+              <div>
+                <strong>본 검사는 AI 전용 암호화 결과지를 제공합니다.</strong>
+                <p>피검사자가 검사 결과를 주관적으로 오해하여 불안해하는 것을 방지하기 위해, 검사지는 난독화된 텍스트 코드로 제공됩니다. 코드를 복사하여 담당 상담사나 AI 진단기에 입력해 주세요.</p>
+              </div>
+            </div>
+            <h3>검사 시 주의사항</h3>
+            <ul>
+              <li>모든 문항은 정답이 없으므로, 떠오르는 생각 그대로 솔직하고 신속하게 답변해 주십시오.</li>
+              <li>그림 검사는 마우스 또는 터치 펜을 사용해 화면에 직접 그리거나, 종이에 그린 후 사진으로 업로드할 수 있습니다.</li>
+              <li>중간에 흐름이 끊기더라도 언제든지 대시보드로 돌아가 작성하던 세션을 불러와 이어서 진행할 수 있습니다.</li>
+            </ul>
+            <div class="consent-box">
+              <label class="checkbox-container">
+                <input type="checkbox" id="consent-checkbox">
+                <span class="checkmark"></span>
+                본 검사의 안내 사항을 모두 읽었으며, 검사 진행 및 로컬 데이터 저장에 동의합니다.
+              </label>
+            </div>
+          </div>
+          <div class="intro-footer">
+            <button class="btn btn-outline" id="btn-intro-back">대시보드로</button>
+            <button class="btn btn-primary" id="btn-intro-start" disabled>검사 시작</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. 검사 진행 화면 (SPA 프레임워크) -->
+      <section id="test-view" class="view-section">
+        <!-- 검사 헤더 및 프로그레스 바 -->
+        <div class="test-progress-card card-glass">
+          <div class="progress-info">
+            <div class="test-meta">
+              <span class="test-type-label" id="active-test-type">정밀 풀배터리 검사</span>
+              <span class="step-title-label" id="active-step-title">1단계: 초기 면접지</span>
+            </div>
+            <div class="progress-percentage" id="progress-percentage">0%</div>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
+          </div>
+          <!-- 하위 단계 인디케이터 -->
+          <div class="step-indicators" id="step-indicators">
+            <!-- 동적으로 생성 -->
+          </div>
+        </div>
+
+        <!-- 검사 컨텐츠 렌더러 -->
+        <div class="test-content-card card-glass" id="test-content-card">
+          <div id="step-container">
+            <!-- 단계별 UI가 JavaScript에 의해 동적으로 여기에 삽입됨 -->
+          </div>
+        </div>
+
+        <!-- 검사 하단 네비게이션 -->
+        <div class="test-navigation">
+          <button class="btn btn-outline" id="btn-test-prev">
+            <i data-lucide="chevron-left"></i> 이전 단계
+          </button>
+          <div class="nav-middle">
+            <button class="btn btn-ghost" id="btn-test-save">
+              <i data-lucide="save"></i> 임시 저장
+            </button>
+            <button class="btn btn-ghost" id="btn-test-pause">
+              <i data-lucide="pause"></i> 일시 정지 (대시보드로)
+            </button>
+          </div>
+          <button class="btn btn-primary" id="btn-test-next">
+            다음 단계 <i data-lucide="chevron-right"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- 4. 결과 및 난독화 코드 생성 화면 -->
+      <section id="result-view" class="view-section">
+        <div class="card-glass result-container">
+          <div class="result-header">
+            <div class="success-icon-wrapper">
+              <i data-lucide="shield-check"></i>
+            </div>
+            <h1>심리검사가 완료되었습니다</h1>
+            <p>개인정보 보호 및 임상적 왜곡 방지를 위해 데이터가 성공적으로 암호화되었습니다.</p>
+          </div>
+
+          <div class="result-body">
+            <div class="info-alert">
+              <i data-lucide="info"></i>
+              <p>아래 안전 코드 블록 전체를 복사하여 <strong>Claude 3.5</strong> 또는 <strong>ChatGPT-4o</strong>에 붙여넣으시면, 프롬프트의 압축 해제 가이드에 따라 종합 진단 결과가 도출됩니다.</p>
+            </div>
+
+            <!-- 코드 출력 영역 -->
+            <div class="secure-code-box">
+              <div class="code-box-header">
+                <span><i data-lucide="lock"></i> AI SECURE BLOCK</span>
+                <button class="btn btn-xs btn-outline" id="btn-copy-code">
+                  <i data-lucide="copy"></i> 코드 복사
+                </button>
+              </div>
+              <textarea id="secure-code-output" readonly></textarea>
+            </div>
+          </div>
+
+          <div class="result-footer">
+            <button class="btn btn-outline" id="btn-download-txt">
+              <i data-lucide="download"></i> 파일로 저장 (.txt)
+            </button>
+            <button class="btn btn-primary" id="btn-result-finish">
+              대시보드로 돌아가기
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="main-footer">
+      <p>&copy; 2026 MIND-BATTERY. All rights reserved. 본 웹앱의 모든 데이터는 브라우저 내부에만 안전하게 암호화되어 저장됩니다.</p>
+    </footer>
+  </div>
+
+  <!-- 임시 저장 완료 알림 토스트 -->
+  <div class="toast-notification" id="toast">
+    <i data-lucide="check-circle" class="toast-icon"></i>
+    <span class="toast-message">작성중인 내용이 자동 저장되었습니다.</span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
