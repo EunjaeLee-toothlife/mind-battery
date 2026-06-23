@@ -342,8 +342,27 @@ async function finishAndGenerateSecureCode() {
     await db.saveHistory(APP_STATE.activeSession);
     await db.deleteSession(APP_STATE.activeSession.id);
 
-    showSecureResultView(secureBlockStr);
-    renderHistoryList();
+    // 행동 관찰 및 자해 위험군 위기 개입 스크리닝
+    const surveyData = APP_STATE.activeSession.survey || {};
+    const crisisScore = APP_STATE.currentMode === 'quick'
+      ? (surveyData['q_quick_9'] || 0)
+      : (surveyData['q_full_39'] || 0);
+
+    if (crisisScore >= 3) {
+      // 109 상담 연동 긴급 위기개입 모달 활성화
+      const crisisModal = document.getElementById('crisis-modal');
+      crisisModal.style.display = 'flex';
+      
+      const btnClose = document.getElementById('btn-close-crisis');
+      btnClose.onclick = () => {
+        crisisModal.style.display = 'none';
+        showSecureResultView(secureBlockStr);
+        renderHistoryList();
+      };
+    } else {
+      showSecureResultView(secureBlockStr);
+      renderHistoryList();
+    }
   } catch (err) {
     console.error('검사 마감 처리 오류:', err);
     alert('검사 결과를 임시 데이터베이스에 보관하지 못했습니다.');

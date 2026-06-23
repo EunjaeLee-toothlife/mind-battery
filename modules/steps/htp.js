@@ -6,7 +6,8 @@ let htpState = {
   currentDrawType: 'house',
   drawTypes: [],
   images: {},
-  pdiAnswers: {}
+  pdiAnswers: {},
+  metadata: {}
 };
 
 const HTP_CONFIGS = {
@@ -37,6 +38,13 @@ export function render(container, sessionData, mode, onComplete) {
   const htpData = sessionData.htp || {};
   htpState.images = htpData.images || {};
   htpState.pdiAnswers = htpData.pdiAnswers || {};
+  htpState.metadata = htpData.metadata || {};
+
+  // 행동 관찰 메타데이터 초기 구조 주입 및 그리기 시작 시간 기록
+  if (!htpState.metadata[htpState.currentDrawType]) {
+    htpState.metadata[htpState.currentDrawType] = { strokeCount: 0, eraserCount: 0, clearCount: 0, duration: 0 };
+  }
+  htpState.metadata[htpState.currentDrawType].startTime = Date.now();
 
   renderActiveDrawingStep(container, sessionData, mode, onComplete);
 }
@@ -162,6 +170,12 @@ function initCanvasDrawing() {
     const coords = getCoordinates(e);
     drawingContext.beginPath();
     drawingContext.moveTo(coords.x, coords.y);
+
+    // 행동 관찰: 선 긋기(획수) 카운트 증가
+    const currentKey = htpState.currentDrawType;
+    if (htpState.metadata[currentKey]) {
+      htpState.metadata[currentKey].strokeCount++;
+    }
   }
 
   function draw(e) {
@@ -207,12 +221,24 @@ function attachHtpListeners(container, sessionData, mode, currentDrawIdx, totalD
     btnBrush.classList.remove('active');
     drawingContext.strokeStyle = '#ffffff';
     drawingContext.lineWidth = brushSize * 3;
+
+    // 행동 관찰: 지우개 선택 카운트 증가
+    const currentKey = htpState.currentDrawType;
+    if (htpState.metadata[currentKey]) {
+      htpState.metadata[currentKey].eraserCount++;
+    }
   });
 
   btnClear.addEventListener('click', () => {
     if (confirm('캔버스를 초기화하고 처음부터 다시 그리겠습니까?')) {
       drawingContext.fillStyle = '#ffffff';
       drawingContext.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 행동 관찰: 캔버스 초기화 카운트 증가
+      const currentKey = htpState.currentDrawType;
+      if (htpState.metadata[currentKey]) {
+        htpState.metadata[currentKey].clearCount++;
+      }
     }
   });
 
@@ -281,12 +307,32 @@ function attachHtpListeners(container, sessionData, mode, currentDrawIdx, totalD
   const btnPrev = container.querySelector('#btn-htp-prev');
   const btnNext = container.querySelector('#btn-htp-next');
 
+  // 현재 그림 체류 시간 누적 및 타이머 초기화 함수
+  function stopTimerAndAccumulate(key) {
+    if (htpState.metadata[key] && htpState.metadata[key].startTime) {
+      const elapsed = Math.round((Date.now() - htpState.metadata[key].startTime) / 1000);
+      htpState.metadata[key].duration += elapsed;
+      htpState.metadata[key].startTime = 0;
+    }
+  }
+
   btnPrev.addEventListener('click', () => {
     const currentKey = htpState.drawTypes[currentDrawIdx].key;
+    stopTimerAndAccumulate(currentKey);
+
     htpState.images[currentKey] = canvas.toDataURL('image/png');
     sessionData.htp.images = htpState.images;
+    sessionData.htp.metadata = htpState.metadata;
 
     htpState.currentDrawType = htpState.drawTypes[currentDrawIdx - 1].key;
+
+    // 이전 그림 시작 타이머 작동
+    const prevKey = htpState.currentDrawType;
+    if (!htpState.metadata[prevKey]) {
+      htpState.metadata[prevKey] = { strokeCount: 0, eraserCount: 0, clearCount: 0, duration: 0 };
+    }
+    htpState.metadata[prevKey].startTime = Date.now();
+
     renderActiveDrawingStep(container, sessionData, mode, onComplete);
   });
 
@@ -308,11 +354,22 @@ function attachHtpListeners(container, sessionData, mode, currentDrawIdx, totalD
     }
 
     const currentKey = htpState.drawTypes[currentDrawIdx].key;
+    stopTimerAndAccumulate(currentKey);
+
     htpState.images[currentKey] = canvas.toDataURL('image/png');
     sessionData.htp.images = htpState.images;
+    sessionData.htp.metadata = htpState.metadata;
 
     if (currentDrawIdx < totalDrawSteps - 1) {
       htpState.currentDrawType = htpState.drawTypes[currentDrawIdx + 1].key;
+
+      // 다음 그림 시작 타이머 작동
+      const nextKey = htpState.currentDrawType;
+      if (!htpState.metadata[nextKey]) {
+        htpState.metadata[nextKey] = { strokeCount: 0, eraserCount: 0, clearCount: 0, duration: 0 };
+      }
+      htpState.metadata[nextKey].startTime = Date.now();
+
       renderActiveDrawingStep(container, sessionData, mode, onComplete);
     } else {
       if (onComplete) onComplete();
@@ -338,7 +395,8 @@ export function capture(sessionData, mode) {
     htpState.images[currentKey] = canvas.toDataURL('image/png');
     sessionData.htp = {
       images: htpState.images,
-      pdiAnswers: htpState.pdiAnswers
+      pdiAnswers: htpState.pdiAnswers,
+      metadata: htpState.metadata
     };
   }
 }

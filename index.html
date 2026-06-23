@@ -132,6 +132,9 @@
                 본 검사의 안내 사항을 모두 읽었으며, 검사 진행 및 로컬 데이터 저장에 동의합니다.
               </label>
             </div>
+            <div class="disclaimer-text" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 15px; line-height: 1.45; border-top: 1px solid var(--border-color); padding-top: 15px;">
+              * 본 검사 도구에 포함된 지능, 인성 및 기질 평가 문항은 특정 상용 저작권 척도(MMPI-2, TCI 등)를 무단 복제하거나 도용하지 않았습니다. 공공 도메인의 연구용 표준 척도(PHQ-9, GAD-7) 및 공개 임상 문헌 가이드를 기반으로 독자 구성된 면책 도구이므로 저작권 분쟁으로부터 안전합니다.
+            </div>
           </div>
           <div class="intro-footer">
             <button class="btn btn-outline" id="btn-intro-back">대시보드로</button>
@@ -238,6 +241,38 @@
   <div class="toast-notification" id="toast">
     <i data-lucide="check-circle" class="toast-icon"></i>
     <span class="toast-message">작성중인 내용이 자동 저장되었습니다.</span>
+  </div>
+
+  <!-- 위기 개입 안내 팝업 모달 -->
+  <div class="modal-overlay" id="crisis-modal" style="display: none;">
+    <div class="modal-card card-glass">
+      <div class="modal-header" style="text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 16px; margin-bottom: 20px;">
+        <div class="crisis-icon-wrapper" style="width:54px; height:54px; background: rgba(239, 68, 68, 0.15); color: var(--danger); border-radius:50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 12px; font-size:1.6rem; box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);">
+          <i data-lucide="heart-handshake"></i>
+        </div>
+        <h2 style="font-size:1.4rem; font-weight:700;">도움이 필요하신가요?</h2>
+      </div>
+      <div class="modal-body" style="font-size:0.95rem; line-height:1.6; color: var(--text-main); margin-bottom:24px;">
+        <p>당신의 정서 답변에서 깊은 심리적 피로감이나 극단적인 스트레스 신호가 감지되었습니다. 혼자서 이 무거운 마음의 짐을 견디지 마세요. 이야기할 수 있는 무료 전문 상담사들이 늘 기다리고 있습니다.</p>
+        <div class="crisis-contacts" style="background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border-color); border-radius:8px; padding: 16px; margin-top: 16px; display:flex; flex-direction:column; gap:12px;">
+          <div class="contact-item" style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:600; color:var(--text-main);">자살예방 상담전화</span>
+            <span style="font-weight:700; color:var(--danger); font-size:1.1rem;">국번없이 109</span>
+          </div>
+          <div class="contact-item" style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:600; color:var(--text-main);">정신건강 상담전화</span>
+            <span style="font-weight:700; color:var(--primary); font-size:1.1rem;">1577-0195</span>
+          </div>
+          <div class="contact-item" style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:600; color:var(--text-main);">청소년 긴급 상담전화</span>
+            <span style="font-weight:700; color:var(--secondary); font-size:1.1rem;">국번없이 1388</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="text-align: right; border-top: 1px solid var(--border-color); padding-top: 16px;">
+        <button class="btn btn-primary" id="btn-close-crisis" style="width: 100%;">확인했습니다 (결과 확인하기)</button>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="app.js"></script>
