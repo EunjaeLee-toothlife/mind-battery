@@ -82,18 +82,21 @@ export function showToast(message) {
   }
 }
 
-// gzip 압축 파일 다운로드
-export async function downloadAsGzip(filename, text, successMessage) {
+async function createGzipBlob(text) {
   if (!window.CompressionStream) {
-    alert('현재 브라우저는 압축 파일 생성을 지원하지 않습니다. Safari 또는 Chrome에서 다시 시도해 주세요.');
-    return;
+    throw new Error('CompressionStream is not supported.');
   }
 
+  const stream = new Blob([text], { type: 'text/plain;charset=utf-8' })
+    .stream()
+    .pipeThrough(new CompressionStream('gzip'));
+  return new Response(stream).blob();
+}
+
+// gzip 압축 파일 다운로드
+export async function downloadAsGzip(filename, text, successMessage) {
   try {
-    const stream = new Blob([text], { type: 'text/plain;charset=utf-8' })
-      .stream()
-      .pipeThrough(new CompressionStream('gzip'));
-    const blob = await new Response(stream).blob();
+    const blob = await createGzipBlob(text);
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement('a');
@@ -110,6 +113,35 @@ export async function downloadAsGzip(filename, text, successMessage) {
     }
   } catch (err) {
     console.error('압축 파일 다운로드 실패:', err);
-    alert('압축 파일 저장에 실패했습니다. 다른 브라우저에서 다시 시도해 주세요.');
+    alert('압축 파일 저장에 실패했습니다. Safari 또는 Chrome에서 다시 시도해 주세요.');
+  }
+}
+
+// 모바일 공유 시트로 gzip 파일 공유
+export async function shareAsGzip(filename, text) {
+  try {
+    if (!navigator.share || !window.File) {
+      alert('현재 브라우저는 파일 공유를 지원하지 않습니다. 압축 파일 저장을 사용해 주세요.');
+      return;
+    }
+
+    const blob = await createGzipBlob(text);
+    const file = new File([blob], filename, { type: 'application/gzip' });
+    const shareData = {
+      title: 'MIND-BATTERY 결과 파일',
+      text: '압축된 검사 결과 파일입니다.',
+      files: [file]
+    };
+
+    if (navigator.canShare && !navigator.canShare({ files: [file] })) {
+      alert('현재 브라우저는 압축 파일 공유를 지원하지 않습니다. 압축 파일 저장을 사용해 주세요.');
+      return;
+    }
+
+    await navigator.share(shareData);
+  } catch (err) {
+    if (err.name === 'AbortError') return;
+    console.error('압축 파일 공유 실패:', err);
+    alert('파일 공유에 실패했습니다. 압축 파일 저장을 사용해 주세요.');
   }
 }

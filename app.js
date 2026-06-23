@@ -378,6 +378,10 @@ function showSecureResultView(secureCode) {
   switchView('result-view');
 }
 
+function getResultFilename() {
+  return `MIND_BATTERY_REPORT_${new Date().toISOString().slice(0,10)}.txt.gz`;
+}
+
 // ==========================================================================
 // 엔트리 초기화 및 전역 바인딩
 // ==========================================================================
@@ -444,14 +448,22 @@ window.addEventListener('DOMContentLoaded', async () => {
   });
 
   // 결과 제어 버튼 바인딩
+  document.getElementById('btn-share-result').addEventListener('click', async () => {
+    const code = APP_STATE.currentSecureCode;
+    if (!code) {
+      alert('공유할 결과 데이터가 없습니다.');
+      return;
+    }
+    await utils.shareAsGzip(getResultFilename(), code);
+  });
+
   document.getElementById('btn-download-txt').addEventListener('click', async () => {
     const code = APP_STATE.currentSecureCode;
     if (!code) {
       alert('저장할 결과 데이터가 없습니다.');
       return;
     }
-    const filename = `MIND_BATTERY_REPORT_${new Date().toISOString().slice(0,10)}.txt.gz`;
-    await utils.downloadAsGzip(filename, code, '압축 파일이 성공적으로 다운로드되었습니다.');
+    await utils.downloadAsGzip(getResultFilename(), code, '압축 파일이 성공적으로 다운로드되었습니다.');
   });
 
   document.getElementById('btn-result-finish').addEventListener('click', () => {
