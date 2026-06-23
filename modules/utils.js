@@ -93,20 +93,50 @@ async function createGzipBlob(text) {
   return new Response(stream).blob();
 }
 
+function isKakaoTalkInAppBrowser() {
+  return /KAKAOTALK/i.test(navigator.userAgent);
+}
+
+function isIOSBrowser() {
+  return /iP(hone|ad|od)/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+function clickDownloadLink(href, filename) {
+  const a = document.createElement('a');
+  a.href = href;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
 // gzip 압축 파일 다운로드
 export async function downloadAsGzip(filename, text, successMessage) {
   try {
     const blob = await createGzipBlob(text);
+
+    if (isKakaoTalkInAppBrowser() && isIOSBrowser()) {
+      const dataUrl = await blobToDataUrl(blob);
+      clickDownloadLink(dataUrl, filename);
+      if (successMessage) {
+        showToast(successMessage);
+      }
+      return;
+    }
+
     const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    clickDownloadLink(url, filename);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
 
     if (successMessage) {
       showToast(successMessage);
