@@ -100,7 +100,8 @@ function renderWorkingMemory(container, sessionData, mode, onComplete) {
 
   container.innerHTML = `
     <div class="digit-memory-container">
-      <h2 style="font-size:1.3rem; margin-bottom:12px;">작업 기억력 테스트 (숫자 따라 외우기)</h2>
+      <h2 style="font-size:1.3rem; margin-bottom:4px;">작업 기억력 테스트 (숫자 따라 외우기)</h2>
+      <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:16px; border-bottom: 1px dashed var(--border-color); padding-bottom:8px;">* 본 검사는 임상적 지능 지수(IQ)를 산출하지 않으며, 가벼운 게임 형태의 참고용 주의력 탐색 활동입니다.</p>
       <div class="digit-instruction" id="wm-instruction">
         라운드 ${cognitiveState.wmRound} / ${totalRounds}<br>
         <strong>[${isBackward ? '역순' : '순방향'}]</strong> 화면에 나타나는 숫자의 순서를 기억하여 ${isBackward ? '거꾸로' : '그대로'} 적어주세요.

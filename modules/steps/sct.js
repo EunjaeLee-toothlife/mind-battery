@@ -42,11 +42,9 @@ const SCT_QUESTIONS = {
     "내가 가장 믿을 수 있는 사람은...",
     "내가 아는 여성들은...",
     "내가 아는 남성들은...",
-    "성(Sex)에 대해 생각하면...",
     "결혼 생활에 대해 나는...",
     "내가 사랑하는 사람은...",
     "나의 이성 관계는...",
-    "성적인 욕구가 생기면 나는...",
     "사랑하는 사람과의 갈등이 생기면...",
     "내가 가장 두려워하는 것은...",
     "나의 가장 큰 결점은...",
@@ -66,7 +64,9 @@ const SCT_QUESTIONS = {
     "내가 인생에서 추구하는 가치는...",
     "남들과 비교할 때 나는...",
     "내가 가장 외롭다고 느낄 때는...",
-    "만약 내가 다시 태어난다면..."
+    "만약 내가 다시 태어난다면...",
+    "성(Sex)에 대해 생각하면... (선택 사항)",
+    "성적인 욕구가 생기면 나는... (선택 사항)"
   ]
 };
 
@@ -123,6 +123,11 @@ export function validate(container, sessionData, mode) {
   const inputs = container.querySelectorAll('.sct-input');
   let unfilledCount = 0;
   inputs.forEach(input => {
+    const idx = parseInt(input.getAttribute('data-index'), 10);
+    // 정밀 모드의 마지막 2개 성적 문항(인덱스 43, 44)은 선택 입력 항목이므로 빈 값 검사에서 제외
+    if (mode === 'full' && (idx === 43 || idx === 44)) {
+      return;
+    }
     if (!input.value.trim()) unfilledCount++;
   });
 

@@ -39,8 +39,8 @@ const TEST_STEPS_CONFIG = {
   ],
   full: [
     { id: 'intake', title: '1단계: 종합 초기 면접지' },
-    { id: 'cognitive', title: '2단계: 상세 인지 기능 검사 (WAIS)' },
-    { id: 'survey', title: '3단계: 다면적 인성 및 기질 평가 (MMPI/TCI)' },
+    { id: 'cognitive', title: '2단계: 상세 인지 기능 탐색 및 게임' },
+    { id: 'survey', title: '3단계: 정서성 및 성격 특성 스크리닝 (PHQ-9/GAD-7 기반)' },
     { id: 'sct', title: '4단계: 심화 문장완성검사 (SCT)' },
     { id: 'htp', title: '5단계: 투사적 그림 검사 (HTP & KFD)' }
   ]
@@ -332,6 +332,7 @@ async function finishAndGenerateSecureCode() {
       intake: APP_STATE.activeSession.intake,
       cognitive: APP_STATE.activeSession.cognitive,
       survey: APP_STATE.activeSession.survey,
+      surveyScores: APP_STATE.activeSession.surveyScores,
       sct: APP_STATE.activeSession.sct,
       htp: APP_STATE.activeSession.htp
     };
@@ -342,13 +343,13 @@ async function finishAndGenerateSecureCode() {
     await db.saveHistory(APP_STATE.activeSession);
     await db.deleteSession(APP_STATE.activeSession.id);
 
-    // 행동 관찰 및 자해 위험군 위기 개입 스크리닝
+    // 행동 관찰 및 자해 위험군 위기 개입 스크리닝 (임계치 2점 이상 완화 및 대상 문항 확대)
     const surveyData = APP_STATE.activeSession.survey || {};
-    const crisisScore = APP_STATE.currentMode === 'quick'
-      ? (surveyData['q_quick_9'] || 0)
-      : (surveyData['q_full_39'] || 0);
+    const hasCrisisQuick = APP_STATE.currentMode === 'quick' && (surveyData['q_quick_9'] >= 2);
+    const hasCrisisFull = APP_STATE.currentMode === 'full' && 
+      ((surveyData['q_full_34'] >= 2) || (surveyData['q_full_39'] >= 2));
 
-    if (crisisScore >= 3) {
+    if (hasCrisisQuick || hasCrisisFull) {
       // 109 상담 연동 긴급 위기개입 모달 활성화
       const crisisModal = document.getElementById('crisis-modal');
       crisisModal.style.display = 'flex';

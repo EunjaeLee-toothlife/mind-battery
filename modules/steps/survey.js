@@ -46,9 +46,9 @@ function generateSurveyQuestions(mode) {
     ];
 
     return quickTexts.map((txt, idx) => {
-      let scale = 'depression';
-      if (idx >= 10 && idx < 20) scale = 'anxiety';
-      else if (idx >= 20) scale = 'tci';
+      let scale = 'Depression';
+      if (idx >= 10 && idx < 20) scale = 'Anxiety';
+      else if (idx >= 20) scale = 'Personality';
       return { id: `q_quick_${idx + 1}`, text: txt, scale: scale };
     });
   } else {
@@ -245,17 +245,101 @@ function generateSurveyQuestions(mode) {
       "나는 삶의 역경 속에서도 끝내 내가 옳다고 믿는 목표를 완수할 끈기를 가졌다."
     ];
 
+    // 역채점 문항 인덱스 정의 (0-indexed)
+    // 사회적 친화성(RD) 역채점: Q114 (113), Q126 (125), Q140 (139), Q163 (162), Q169 (168), Q181 (180), Q194 (193), Q213 (212)
+    // 위험 회피성(HA) 역채점: Q91 (90), Q99 (98), Q146 (145), Q154 (153), Q175 (174), Q206 (205)
+    // 자극 추구성(NS) 역채점: Q98 (97), Q153 (152), Q179 (178), Q218 (217), Q243 (242)
+    // 자기 조절력(SD) 역채점: Q138 (137), Q182 (181), Q193 (192), Q227 (226)
+    const reverseIndices = [
+      113, 119, 120, 134, 135, 150, 155, 158, 168, 169, 188
+    ];
+
     return fullTexts.map((txt, idx) => {
-      let scale = 'MMPI_D';
-      if (idx < 30) scale = 'MMPI_Hs';
-      else if (idx >= 30 && idx < 60) scale = 'MMPI_D';
-      else if (idx >= 60 && idx < 90) scale = 'MMPI_Pt';
-      else if (idx >= 90 && idx < 120) scale = 'TCI_RD';
-      else if (idx >= 120 && idx < 150) scale = 'TCI_HA';
-      else if (idx >= 150 && idx < 170) scale = 'TCI_NS';
-      else scale = 'TCI_SD';
-      return { id: `q_full_${idx + 1}`, text: txt, scale: scale };
+      let scale = 'Depression';
+      if (idx < 30) scale = 'SomaticConcern';
+      else if (idx >= 30 && idx < 60) scale = 'Depression';
+      else if (idx >= 60 && idx < 90) scale = 'Anxiety';
+      else if (idx >= 90 && idx < 115) scale = 'SocialAffiliation';
+      else if (idx >= 115 && idx < 140) scale = 'HarmAvoidance';
+      else if (idx >= 140 && idx < 165) scale = 'NoveltySeeking';
+      else scale = 'SelfDirection';
+
+      const isReversed = reverseIndices.includes(idx);
+      return { id: `q_full_${idx + 1}`, text: txt, scale: scale, reversed: isReversed };
     });
+  }
+}
+
+export function calculateScores(answers, mode) {
+  if (mode === 'quick') {
+    let depressionSum = 0;
+    let anxietySum = 0;
+    let personalitySum = 0;
+    
+    for (let i = 1; i <= 45; i++) {
+      const val = answers[`q_quick_${i}`] || 0;
+      if (i <= 10) depressionSum += val;
+      else if (i <= 20) anxietySum += val;
+      else personalitySum += val;
+    }
+    
+    return {
+      Depression: depressionSum,
+      Anxiety: anxietySum,
+      Personality: personalitySum
+    };
+  } else {
+    let somaticSum = 0;
+    let depressionSum = 0;
+    let anxietySum = 0;
+    let socialAffiliationSum = 0;
+    let harmAvoidanceSum = 0;
+    let noveltySeekingSum = 0;
+    let selfDirectionSum = 0;
+
+    const reverseIndices = [
+      113, 119, 120, 134, 135, 150, 155, 158, 168, 169, 188
+    ];
+
+    for (let i = 0; i < 190; i++) {
+      const qId = `q_full_${i + 1}`;
+      let val = answers[qId] || 0;
+      if (reverseIndices.includes(i)) {
+        val = 4 - val;
+      }
+
+      if (i < 30) somaticSum += val;
+      else if (i >= 30 && i < 60) depressionSum += val;
+      else if (i >= 60 && i < 90) anxietySum += val;
+      else if (i >= 90 && i < 115) socialAffiliationSum += val;
+      else if (i >= 115 && i < 140) harmAvoidanceSum += val;
+      else if (i >= 140 && i < 165) noveltySeekingSum += val;
+      else selfDirectionSum += val;
+    }
+
+    let carelessIndex = 0;
+    const v1 = answers['q_full_114'];
+    const v2 = answers['q_full_169'];
+    if (v1 !== undefined && v2 !== undefined) carelessIndex += Math.abs(v1 - v2);
+
+    const v3 = answers['q_full_126'];
+    const v4 = answers['q_full_181'];
+    if (v3 !== undefined && v4 !== undefined) carelessIndex += Math.abs(v3 - v4);
+
+    const v5 = answers['q_full_139'];
+    const v6 = answers['q_full_194'];
+    if (v5 !== undefined && v6 !== undefined) carelessIndex += Math.abs(v5 - v6);
+
+    return {
+      SomaticConcern: somaticSum,
+      Depression: depressionSum,
+      Anxiety: anxietySum,
+      SocialAffiliation: socialAffiliationSum,
+      HarmAvoidance: harmAvoidanceSum,
+      NoveltySeeking: noveltySeekingSum,
+      SelfDirection: selfDirectionSum,
+      CarelessIndex: carelessIndex
+    };
   }
 }
 
@@ -263,6 +347,7 @@ export function render(container, sessionData, mode, onComplete) {
   surveyState.questions = generateSurveyQuestions(mode);
   surveyState.currentPage = 0;
   surveyState.answers = sessionData.survey || {};
+  sessionData.surveyScores = calculateScores(surveyState.answers, mode);
 
   renderSurveyPage(container, sessionData, mode, onComplete);
 }
@@ -328,6 +413,7 @@ function renderSurveyPage(container, sessionData, mode, onComplete) {
       const qid = e.target.getAttribute('data-qid');
       surveyState.answers[qid] = parseInt(e.target.value, 10);
       sessionData.survey = surveyState.answers;
+      sessionData.surveyScores = calculateScores(surveyState.answers, mode);
     });
   });
 
@@ -361,7 +447,8 @@ function renderSurveyPage(container, sessionData, mode, onComplete) {
 }
 
 export function capture(sessionData, mode) {
-  // 사용자가 라디오를 바꿀 때마다 실시간 백업하므로 별도 동작 불요
+  sessionData.survey = surveyState.answers;
+  sessionData.surveyScores = calculateScores(surveyState.answers, mode);
 }
 
 export function validate(container, sessionData, mode) {

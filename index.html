@@ -66,10 +66,10 @@
               <i data-lucide="shield-check"></i>
             </div>
             <h2>2시간 정밀 풀배터리 검사</h2>
-            <p>임상 초기면접지, 상세 인지기능 검사(WAIS), 정밀 다면적 인성검사(MMPI) 및 TCI 기질검사, SCT 45문항, HTP/KFD 그림 투사 검사를 아우르는 심층 평가입니다.</p>
+            <p>심층 기초면접지, 자기탐색 인지 기능 게임, 정밀 정서 및 성격 특성 스크리닝(PHQ-9/GAD-7 기반), SCT 45문항, HTP/KFD 그림 투사 활동을 아우르는 심층 자기탐색 과정입니다.</p>
             <ul class="card-specs">
               <li><i data-lucide="clock"></i> 예상 소요 시간: 약 120분</li>
-              <li><i data-lucide="brain"></i> WAIS 인지검사 + MMPI/TCI 190문항</li>
+              <li><i data-lucide="brain"></i> 인지 게임 + 정서/성격 스크리닝 190문항</li>
               <li><i data-lucide="activity"></i> SCT 45문항 + KFD 동적가족화 추가</li>
             </ul>
             <button class="btn btn-secondary btn-block">정밀 검사 시작하기</button>
@@ -133,7 +133,7 @@
               </label>
             </div>
             <div class="disclaimer-text" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 15px; line-height: 1.45; border-top: 1px solid var(--border-color); padding-top: 15px;">
-              * 본 검사 도구에 포함된 지능, 인성 및 기질 평가 문항은 특정 상용 저작권 척도(MMPI-2, TCI 등)를 무단 복제하거나 도용하지 않았습니다. 공공 도메인의 연구용 표준 척도(PHQ-9, GAD-7) 및 공개 임상 문헌 가이드를 기반으로 독자 구성된 면책 도구이므로 저작권 분쟁으로부터 안전합니다.
+              * 본 검사는 비대면 간이 자가 진단 및 스크리닝을 돕기 위해 공개된 연구용 표준 척도(PHQ-9, GAD-7) 및 자체 개발 성격/기질 문항을 기반으로 제작된 독자적인 스크리닝 및 자기 탐색용 도구입니다. 특정 상용 저작권이 존재하는 검사 도구(MMPI-2, TCI, WAIS-IV 등)를 모방하거나 복제하지 않았으며, 의학적/정신과적 진단을 대체할 수 없습니다.
             </div>
           </div>
           <div class="intro-footer">
@@ -201,6 +201,10 @@
           </div>
 
           <div class="result-body">
+            <div class="info-alert danger-alert" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); color: #fca5a5; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 12px; padding: 16px; border-radius: 8px;">
+              <i data-lucide="alert-triangle" style="flex-shrink: 0; color: #ef4444; margin-top: 2px;"></i>
+              <p style="margin: 0; font-size: 0.9rem; line-height: 1.5; color: #e2e8f0;"><strong style="color: #ef4444;">[임상적 고지]</strong> 본 검사는 공식 정신과적 진단이 아니며, 간이 스크리닝 및 자기 탐색 참고용입니다. 실제 심리적 어려움에 대한 치료적 자문이나 진단은 반드시 임상심리사나 정신건강의학과 전문의 등의 전문가를 통해 받으셔야 합니다.</p>
+            </div>
             <div class="info-alert">
               <i data-lucide="info"></i>
               <p>아래 안전 코드 블록 전체를 복사하여 <strong>Claude 3.5</strong> 또는 <strong>ChatGPT-4o</strong>에 붙여넣으시면, 프롬프트의 압축 해제 가이드에 따라 종합 진단 결과가 도출됩니다.</p>
