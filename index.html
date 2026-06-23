@@ -207,24 +207,21 @@
             </div>
             <div class="info-alert">
               <i data-lucide="info"></i>
-              <p>아래 안전 코드 블록 전체를 복사하여 <strong>Claude 3.5</strong> 또는 <strong>ChatGPT-4o</strong>에 붙여넣으시면, 프롬프트의 압축 해제 가이드에 따라 종합 진단 결과가 도출됩니다.</p>
+              <p>아래 안전 코드 블록은 압축 파일로 저장할 수 있습니다. 저장된 파일은 담당 상담사나 분석 담당자에게 전달해 주세요.</p>
             </div>
 
             <!-- 코드 출력 영역 -->
             <div class="secure-code-box">
               <div class="code-box-header">
                 <span><i data-lucide="lock"></i> AI SECURE BLOCK</span>
-                <button class="btn btn-xs btn-outline" id="btn-copy-code">
-                  <i data-lucide="copy"></i> 코드 복사
-                </button>
               </div>
-              <textarea id="secure-code-output" readonly></textarea>
+              <div class="result-file-summary" id="result-file-summary"></div>
             </div>
           </div>
 
           <div class="result-footer">
             <button class="btn btn-outline" id="btn-download-txt">
-              <i data-lucide="download"></i> 파일로 저장 (.txt)
+              <i data-lucide="archive"></i> 압축 파일로 저장 (.txt.gz)
             </button>
             <button class="btn btn-primary" id="btn-result-finish">
               대시보드로 돌아가기

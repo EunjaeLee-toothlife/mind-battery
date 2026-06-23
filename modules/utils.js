@@ -82,44 +82,34 @@ export function showToast(message) {
   }
 }
 
-// 복사 기능
-export function copyToClipboard(text, successMessage) {
-  navigator.clipboard.writeText(text).then(() => {
+// gzip 압축 파일 다운로드
+export async function downloadAsGzip(filename, text, successMessage) {
+  if (!window.CompressionStream) {
+    alert('현재 브라우저는 압축 파일 생성을 지원하지 않습니다. Safari 또는 Chrome에서 다시 시도해 주세요.');
+    return;
+  }
+
+  try {
+    const stream = new Blob([text], { type: 'text/plain;charset=utf-8' })
+      .stream()
+      .pipeThrough(new CompressionStream('gzip'));
+    const blob = await new Response(stream).blob();
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
     if (successMessage) {
       showToast(successMessage);
     }
-  }).catch(err => {
-    console.error('클립보드 복사 실패:', err);
-    // 폴백 복사 기법
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    document.body.appendChild(textarea);
-    textarea.select();
-    try {
-      document.execCommand('copy');
-      if (successMessage) showToast(successMessage);
-    } catch (e) {
-      alert('복사에 실패했습니다. 수동으로 복사해 주세요.');
-    }
-    document.body.removeChild(textarea);
-  });
-}
-
-// 파일 다운로드
-export function downloadAsTxt(filename, text, successMessage) {
-  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  
-  if (successMessage) {
-    showToast(successMessage);
+  } catch (err) {
+    console.error('압축 파일 다운로드 실패:', err);
+    alert('압축 파일 저장에 실패했습니다. 다른 브라우저에서 다시 시도해 주세요.');
   }
 }

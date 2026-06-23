@@ -17,7 +17,8 @@ const APP_STATE = {
   activeView: 'dashboard-view',
   currentMode: null, // 'quick' | 'full'
   currentStepIndex: 0,
-  activeSession: null
+  activeSession: null,
+  currentSecureCode: ''
 };
 
 // 단계 배치 맵
@@ -371,7 +372,9 @@ async function finishAndGenerateSecureCode() {
 }
 
 function showSecureResultView(secureCode) {
-  document.getElementById('secure-code-output').value = secureCode;
+  APP_STATE.currentSecureCode = secureCode;
+  const sizeKb = Math.ceil(new Blob([secureCode]).size / 1024);
+  document.getElementById('result-file-summary').textContent = `보안 결과 데이터가 생성되었습니다. 원본 크기: 약 ${sizeKb.toLocaleString('ko-KR')}KB`;
   switchView('result-view');
 }
 
@@ -441,15 +444,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   });
 
   // 결과 제어 버튼 바인딩
-  document.getElementById('btn-copy-code').addEventListener('click', () => {
-    const code = document.getElementById('secure-code-output').value;
-    utils.copyToClipboard(code, 'AI 보안 분석 코드가 클립보드에 복사되었습니다.');
-  });
-  
-  document.getElementById('btn-download-txt').addEventListener('click', () => {
-    const code = document.getElementById('secure-code-output').value;
-    const filename = `MIND_BATTERY_REPORT_${new Date().toISOString().slice(0,10)}.txt`;
-    utils.downloadAsTxt(filename, code, '텍스트 파일이 성공적으로 다운로드되었습니다.');
+  document.getElementById('btn-download-txt').addEventListener('click', async () => {
+    const code = APP_STATE.currentSecureCode;
+    if (!code) {
+      alert('저장할 결과 데이터가 없습니다.');
+      return;
+    }
+    const filename = `MIND_BATTERY_REPORT_${new Date().toISOString().slice(0,10)}.txt.gz`;
+    await utils.downloadAsGzip(filename, code, '압축 파일이 성공적으로 다운로드되었습니다.');
   });
 
   document.getElementById('btn-result-finish').addEventListener('click', () => {
