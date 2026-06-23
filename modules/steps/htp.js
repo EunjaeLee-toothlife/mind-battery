@@ -299,7 +299,8 @@ function attachHtpListeners(container, sessionData, mode, currentDrawIdx, totalD
       htpState.pdiAnswers[key] = e.target.value;
       sessionData.htp = {
         images: htpState.images,
-        pdiAnswers: htpState.pdiAnswers
+        pdiAnswers: htpState.pdiAnswers,
+        metadata: htpState.metadata
       };
     });
   });
