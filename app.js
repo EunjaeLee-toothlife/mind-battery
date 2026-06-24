@@ -375,11 +375,39 @@ function showSecureResultView(secureCode) {
   APP_STATE.currentSecureCode = secureCode;
   const sizeKb = Math.ceil(new Blob([secureCode]).size / 1024);
   document.getElementById('result-file-summary').textContent = `보안 결과 데이터가 생성되었습니다. 원본 크기: 약 ${sizeKb.toLocaleString('ko-KR')}KB`;
+  setDriveUploadStatus('');
   switchView('result-view');
 }
 
-function getResultFilename() {
+function getResultArchiveFilename() {
   return `MIND_BATTERY_REPORT_${new Date().toISOString().slice(0,10)}.txt.gz`;
+}
+
+function getResultTextFilename() {
+  return `MIND_BATTERY_REPORT_${new Date().toISOString().slice(0,10)}.txt`;
+}
+
+function getMetaContent(name) {
+  const meta = document.querySelector(`meta[name="${name}"]`);
+  return meta ? meta.getAttribute('content').trim() : '';
+}
+
+function setDriveUploadStatus(message, fileUrl) {
+  const status = document.getElementById('result-upload-status');
+  status.textContent = '';
+
+  if (!message) return;
+
+  status.appendChild(document.createTextNode(message));
+  if (fileUrl) {
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = 'Drive 파일 열기';
+    status.appendChild(document.createTextNode(' '));
+    status.appendChild(link);
+  }
 }
 
 // ==========================================================================
@@ -448,13 +476,47 @@ window.addEventListener('DOMContentLoaded', async () => {
   });
 
   // 결과 제어 버튼 바인딩
+  document.getElementById('btn-upload-drive').addEventListener('click', async (e) => {
+    const code = APP_STATE.currentSecureCode;
+    if (!code) {
+      alert('저장할 결과 데이터가 없습니다.');
+      return;
+    }
+
+    const uploadUrl = getMetaContent('mind-battery-upload-url');
+    if (!uploadUrl) {
+      alert('Google Drive 저장 URL이 설정되지 않았습니다. index.html의 mind-battery-upload-url 값을 설정해 주세요.');
+      return;
+    }
+
+    const button = e.currentTarget;
+    button.disabled = true;
+    setDriveUploadStatus('Google Drive에 저장하는 중입니다...');
+
+    try {
+      const result = await utils.uploadResultToDrive(uploadUrl, {
+        filename: getResultTextFilename(),
+        secureCode: code,
+        secret: getMetaContent('mind-battery-upload-secret')
+      });
+      setDriveUploadStatus('Google Drive 저장 완료.', result.fileUrl);
+      utils.showToast('Google Drive에 결과 파일을 저장했습니다.');
+    } catch (err) {
+      console.error('Google Drive 저장 실패:', err);
+      setDriveUploadStatus('Google Drive 저장에 실패했습니다. 압축 파일 저장 또는 공유를 사용해 주세요.');
+      alert('Google Drive 저장에 실패했습니다. Apps Script 배포 URL과 접근 권한을 확인해 주세요.');
+    } finally {
+      button.disabled = false;
+    }
+  });
+
   document.getElementById('btn-share-result').addEventListener('click', async () => {
     const code = APP_STATE.currentSecureCode;
     if (!code) {
       alert('공유할 결과 데이터가 없습니다.');
       return;
     }
-    await utils.shareAsGzip(getResultFilename(), code);
+    await utils.shareAsGzip(getResultArchiveFilename(), code);
   });
 
   document.getElementById('btn-download-txt').addEventListener('click', async () => {
@@ -463,7 +525,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       alert('저장할 결과 데이터가 없습니다.');
       return;
     }
-    await utils.downloadAsGzip(getResultFilename(), code, '압축 파일이 성공적으로 다운로드되었습니다.');
+    await utils.downloadAsGzip(getResultArchiveFilename(), code, '압축 파일이 성공적으로 다운로드되었습니다.');
   });
 
   document.getElementById('btn-result-finish').addEventListener('click', () => {

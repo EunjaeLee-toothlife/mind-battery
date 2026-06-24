@@ -1225,9 +1225,33 @@ textarea.form-control {
   line-height: 1.5;
 }
 
+.result-upload-status {
+  border-top: 1px solid var(--border-color);
+  padding: 14px 16px;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.result-upload-status:empty {
+  display: none;
+}
+
+.result-upload-status a {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
 .result-footer {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.result-footer button {
+  flex: 1 1 180px;
 }
 
 /* ==========================================================================

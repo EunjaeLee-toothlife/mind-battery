@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="mind-battery-upload-url" content="https://script.google.com/macros/s/AKfycby0jwo6jbMI1vX6QEqLvt4OQ8c2ih3tzqm20-5fEYRJ7oCrmM15OsdGQilRkbqVtgnz/exec">
+  <meta name="mind-battery-upload-secret" content="">
   <title>MIND-BATTERY | 전문 풀배터리 심리검사 시스템</title>
   <!-- Google Fonts: Inter & Noto Sans KR -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -216,10 +218,14 @@
                 <span><i data-lucide="lock"></i> AI SECURE BLOCK</span>
               </div>
               <div class="result-file-summary" id="result-file-summary"></div>
+              <div class="result-upload-status" id="result-upload-status"></div>
             </div>
           </div>
 
           <div class="result-footer">
+            <button class="btn btn-secondary" id="btn-upload-drive">
+              <i data-lucide="cloud-upload"></i> Google Drive에 저장
+            </button>
             <button class="btn btn-primary" id="btn-share-result">
               <i data-lucide="share-2"></i> 카카오톡/앱으로 공유
             </button>

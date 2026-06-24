@@ -175,3 +175,21 @@ export async function shareAsGzip(filename, text) {
     alert('파일 공유에 실패했습니다. 압축 파일 저장을 사용해 주세요.');
   }
 }
+
+// Apps Script Web App으로 결과 파일 저장
+export async function uploadResultToDrive(uploadUrl, payload) {
+  const response = await fetch(uploadUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8'
+    },
+    body: JSON.stringify(payload)
+  });
+  const result = await response.json();
+
+  if (!result.ok) {
+    throw new Error(result.error || 'Google Drive 저장에 실패했습니다.');
+  }
+
+  return result;
+}
